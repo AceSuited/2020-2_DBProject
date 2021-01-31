@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="/css/style.css">
+<style>
+    table, th, td {
+  border: 2px solid black;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+th, td {
+  padding: 2px;
+}
+th{
+    height: 70px;
+}
+td{
+    text-align: right;
+}
+</style>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+</head>
+<body>
+    <%- include ('evaluator_navbar') %>
+    <div style="margin:4%;">
+      <h2>모니터링</h2>
+      <hr>
+      <h3>과거 평가 기록</h3>
+      <br>
+      <table style="width:1265px;">    
+          <tr>
+            <th>PD_ID</th>
+            <th>Task_Name</th>
+            <th>OGDATA_id</th>
+            <th>SubmitterId</th>
+            <th>Nth</th>
+            <th>Total tuple</th>
+            <th>Duplicated tuple</th>
+            <th style = "width:300px">Null ratio</th>
+            <th>정성 평가</th>
+            <th>P/NP</th>
+            <%- data %>
+          </tr>
+          <tr>
+            
+          </tr>
+        </table>
+      <br>
+    </div>
+
+</body>
+</html>

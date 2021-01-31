@@ -1,0 +1,82 @@
+<style>
+    body{
+        margin:0;
+        padding:0;
+    }
+    a{
+        text-decoration: none;
+    }
+    .navbar{
+        background-color: black;
+        opacity:80%;
+        width:100%;
+        height:9vh;
+        display: flex;
+        flex-direction: row;
+    }
+    .navbar-site{
+        display: flex;
+        color:white;
+        flex-direction:row;
+        justify-content: center;
+        text-align:center;
+        align-items: center;
+        font-size: 35px;
+        font-weight: 800;
+    }
+    
+    .navbar-left-items{
+        display:flex;
+        margin-left:2%;
+        margin-top:0;
+        color:white;
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: center;
+        align-items: center;
+        font-size: 18px;
+        font-weight:500;
+    }
+    
+    .navbar-right-items{
+        margin-left:10px;
+        width:75vw;
+        display:flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+        margin-top:0;
+        color:white;
+        font-size: 18px;
+        font-weight:500;
+    }
+    
+    </style>
+    
+    
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Crowdsourcing</title>
+    </head>
+    <body>
+        <div class="navbar">
+            <div class="navbar-site">
+                <a href="/evaluator" style="padding-left:2vw; text-decoration: none; color:white;">SITE</a>
+            </div>
+            
+            <div class="navbar-left-items">
+                <a href="/evaluator/evaluate" style="margin-right:5vh; color:white;">평가하기</a>
+                <a href="/evaluator/monitoring" style="margin-right:5vh;color:white">모니터링</a>
+            </div>
+    
+            <div class="navbar-right-items">
+                <a href="/userInfo" style="margin-right:5vh;color:white">프로필</a>
+                <a href="/logout" style="margin-right:5vh;color:white">로그아웃</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    

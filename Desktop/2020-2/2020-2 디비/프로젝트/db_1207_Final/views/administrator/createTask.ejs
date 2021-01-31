@@ -1,0 +1,363 @@
+<html>
+  <head>
+    <%- include('header') %>
+  </head>
+  <body>
+    <%- include ('admin_navbar') %>
+    <div style="margin:4%">
+    <h1>태스크생성</h1>
+    <hr>
+    <h2>태스크 기본 정보 입력</h2>
+    
+    <div style="margin:1%;">
+      태스크이름
+      <br style = >
+      <input type="text" id = "TaskName"  placeholder="영어로만 입력해 주세요">
+      <button id="checkTaskName">중복확인</button>
+      <p></p>
+      <br>
+      태스크설명
+      <br>
+      <p><textarea id = "TaskExplanation" cols="50" rows="10"placeholder ="태스크설명"></textarea></p>
+      <br>
+      최소 업로드 주기
+      <br>
+      <input type="text" id = "MinimalTerm"  placeholder="ex(2주-> 14 입력)">
+      <br>
+    </div>
+    <h2>태스크 데이터 테이블 스키마 정보 입력</h2>
+    
+    <div style="margin:1%;">
+      태스크 데이터 테이블 이름
+      <br>
+      <input type="text" id = "TaskDataTableName"  placeholder="영어로만 입력해 주세요">
+      <p></p>
+      <br>
+      속성 수
+      <br >
+      <input type="text" id = "NumAttributes"  placeholder="" onchange="getNumInput_td(this)" value = "">
+      <p></p>
+      <br>
+      
+      
+    </div >
+    <div id = taskDataTable></div>
+    <button id="NEXT"style = "margin:1%;">기본 원본 데이터 타입 생성 및 맵핑하기</button>
+    
+    <h2>원본 데이터 타입 스키마 정보 입력</h2>
+    <div style="margin:30px;">
+    
+    </div>
+    <div id = OGDataTable></div>
+    </div>
+  </body> 
+  
+
+
+
+  <script>
+    
+    var checkTaskNameFlag = false;
+
+    function getNumInput_td(input){
+      
+      if(isNaN(parseInt(input.value))){
+        window.alert("숫자만 입력해 주세요");
+      }
+
+      document.getElementById(`taskDataTable`).innerHTML = "";
+
+         for(var j = 0; j < parseInt(input.value); j++){
+          var newLine = document.createElement("br");
+         
+          var textfield1 = document.createElement("input");
+          
+          
+          var index = document.createTextNode(`속성 ${j + 1} `);
+          document.getElementById(`taskDataTable`).appendChild(index);
+
+          textfield1.type = "text";
+          textfield1.placeholder = "속성이름";
+          textfield1.id = "td_name_" + `${j}`;
+          document.getElementById(`taskDataTable`).appendChild(textfield1);
+                    
+          var textfield2 = document.createElement("input");
+          textfield2.type = "text";
+          textfield2.placeholder = "데이터형";
+          textfield2.id = "td_dataType_" + `${j}`;
+          document.getElementById(`taskDataTable`).appendChild(textfield2);
+       
+
+          var textfield3 = document.createElement("input");
+          textfield3.type = "text";
+          textfield3.placeholder = "CONSTRAINT";
+          textfield3.id = "td_constraint_" + `${j}`;
+          document.getElementById(`taskDataTable`).appendChild(textfield3);
+              
+          document.getElementById(`taskDataTable`).appendChild(newLine);
+
+          
+         
+        }
+        document.getElementById(`taskDataTable`).innerHTML += `<br><p></p>Primary Key로 지정할 속성의 이름<br><br>
+        <input type="text" id = "pk_name"  placeholder="속성의 이름 입력" onchange="checkValidity(this)" value = "">
+        `;
+        // var textfield = document.createElement("input");
+        // textfield.type = "text";
+        // textfield.placeholder = "ex(속성1 지정 -> 1 입력)"
+        // textfield.id = "pk_num";
+        // textfield.onchange = "checkValidity(this)";
+        // document.getElementById(`taskDataTable`).appendChild(textfield);
+        
+        // var but = document.createElement("button");
+        // but.id = "pk_seleect";
+        // but.innerText =" 피케이 생성";
+        // but.onclick= "pk_selector()";
+        // document.getElementById(`taskDataTable`).appendChild(but);
+      // 
+        
+
+    }
+    
+    
+
+   
+    document.getElementById("checkTaskName").addEventListener("click", ()=>{
+      
+      var name = document.getElementById("TaskName").value;
+      var container = {}
+      container.name = name;
+      fetch('/administrator/createTask_checkTaskName', {
+        method:"POST",
+        headers:{
+          "Content-Type": "application/json"
+        },
+        body : JSON.stringify(container)
+                   
+      }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var duplicate = data.duplicate;
+            var message = data.message;
+            
+          
+            if(duplicate){
+                window.alert(message);
+                
+                return;
+            }else{
+                window.alert(message);
+                checkTaskNameFlag = true;
+                
+            }
+        })
+
+      
+    })
+
+
+    document.getElementById("NEXT").addEventListener("click", ()=>{
+      var container = {};
+      
+      if( document.getElementById("TaskName").value == ""){
+        window.alert("태스크 이름을 입력해 주세요");
+        return;
+      }
+      container.TaskName = document.getElementById("TaskName").value;
+      
+
+      container.TaskExplanation = document.getElementById("TaskExplanation").value;
+      
+      
+      if(isNaN(document.getElementById("MinimalTerm").value) ||document.getElementById("MinimalTerm").value =="" ){
+        window.alert("최소 업로드 주기에 알맞은 값을 입력하세요");
+        return;
+      }else{
+        container.MinmalTerm = document.getElementById("MinimalTerm").value;
+      }
+   
+      
+      if( document.getElementById("TaskDataTableName").value == ""){
+        window.alert("태스크 데이터 테이블 이름을 입력해 주세요");
+        return;
+      }
+      
+      container.NumAttributes = document.getElementById("NumAttributes").value;
+      
+      var pk_flag = false;
+
+
+      var td_attributes = document.getElementById("taskDataTable").getElementsByTagName("input")  
+      var td_schema = {}
+     
+      var valid_type= ['a','int', 'INT', 'String', 'string', 'STRING'];
+      var valid_constraint = ['a', "unique", "not null",  "not null,unique" , "unique,not null","not null, unique" , "unique, not null", "", " "];
+      
+      
+     
+      
+      var names = [];
+      for(var i = 0; i<parseInt(container.NumAttributes); i++){
+        var p = i * 3 ;
+        var temp = {}
+        temp.name = td_attributes[p].value;
+        if(temp.name == ""){
+          window.alert(`속성 ${i+ 1}의 이름을 써주세요`);
+        }
+        else if(names.includes(temp.name)){
+          window.alert('중복된 속성이름이 존재합니다. 다시 입력해 주세요');
+          return;
+        }
+        names[i] = temp.name; 
+
+
+        if(valid_type.includes(td_attributes[p+1].value)){
+          temp.type = td_attributes[p+1].value;
+        }else{
+          window.alert(`속성 ${i + 1}의 type을 정확히 입력해 주세요.(INT, STRING)`);
+          return;
+        }
+        if(valid_constraint.includes(td_attributes[p+2].value)){
+          temp.constraint = td_attributes[p+2].value;
+        }else{
+          window.alert(`속성 ${i + 1}의 constraint을 정확히 입력해 주세요.(NOT NULL,UNIQUE) (영어소문자)`);
+          return;
+        }
+
+      
+        
+        if(document.getElementById("pk_name").value ==temp.name){
+          pk_flag =true;
+          if(temp.constraint == "not null"  ){
+            temp.constraint +=",unique";
+          }else if(temp.constraint == ""  ){
+            temp.constraint +="not null,unique";
+          }else if(temp.constraint == "unique"  ){
+            temp.constraint +=",not null";
+          }
+
+        }
+        container[`attribute_${i}`] = temp;
+      }
+
+      if(pk_flag){
+        container.pk_name = document.getElementById("pk_name").value;
+      
+      }else{
+        window.alert("Primary Key에 해당하는 속성의 이름을 정확히 입력하세요");
+        return;
+      }
+
+      container.TaskDataTableName = document.getElementById("TaskDataTableName").value;
+
+      if(!checkTaskNameFlag){
+        window.alert("태스크 이름 중복체크를 해주세요.");
+        return
+      }
+     
+    return getNumInput_og(parseInt(container.NumAttributes), names, container);
+
+     
+    });
+    
+    
+    
+    
+    function getNumInput_og(num, attributeNames,container){
+ 
+
+       document.getElementById(`OGDataTable`).innerHTML = `  원본 데이터 타입 이름
+      <br style = >
+      <input type="text" id = "OGDataTableName"  placeholder="">
+      <br>
+      <br>
+      `;
+          
+          for(var j = 0; j < (num); j++){
+           var newLine = document.createElement("br");
+          
+           var textfield1 = document.createElement("input");
+           
+           
+           var index = document.createTextNode(`태스크 데이터 테이블의 속성 '${attributeNames[j]}' 와 맵핑되는 속성 이름`);
+           document.getElementById(`OGDataTable`).appendChild(index);
+ 
+           textfield1.type = "text";
+           textfield1.placeholder = "OG속성이름";
+           textfield1.id = "og_name_" + `${j}`;
+           document.getElementById(`OGDataTable`).appendChild(textfield1);
+                     
+
+               
+           document.getElementById(`OGDataTable`).appendChild(newLine);
+         }
+         
+         document.getElementById(`OGDataTable`).innerHTML +=`<button id="CREATE"style = "margin:1%;">생성하기</button>`
+     
+         
+         document.getElementById(`CREATE`).addEventListener('click', ()=>{
+          
+          if(document.getElementById('OGDataTableName').value == ""){
+            window.alert("원본 데이터 타입 이름을 써주세요.");
+          }
+          container.OGDT_name = document.getElementById('OGDataTableName').value
+
+          var OG_names = [];
+          for(var i = 0; i<parseInt(num); i++){
+            var temp = {}
+            temp.TD_mapping_name = attributeNames[i];
+            temp.OG_name = document.getElementById(`og_name_${i}`).value;
+            
+            if(temp.OG_name == ""){
+                window.alert(`태스크 데이터 테이블의 속성 '${attributeNames[i]}'와 맵핑되는 속성의 이름을 써주세요`);
+                return;
+            }
+            else if(OG_names.includes(temp.OG_name)){
+                window.alert('중복된 속성이름이 존재합니다. 다시 입력해 주세요');
+                return;
+            
+            }
+            OG_names[i] = temp.OG_name
+
+
+            container[`OG_attribute_${i}`] = temp;
+            if(temp.TD_mapping_name == container.pk_name){
+              container.og_pk_name = temp.OG_name;
+            }
+          }
+          console.log(container);
+
+
+           fetch('/administrator/createTask_process', {
+        method:"POST",
+        headers:{
+          "Content-Type": "application/json"
+        },
+        body : JSON.stringify(container)
+                   
+      }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+   
+            if(success){
+                window.alert(message);
+                window.location.href = '/administrator';
+              }else{
+                window.alert(message);
+                
+            }
+        })
+         })
+     }
+    
+  
+      
+
+  </script>
+</html>
+
+

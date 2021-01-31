@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <%- include('header') %>
+  </head>
+  <body>
+    <%- include ('admin_navbar') %>
+    <div style="margin:4%;">
+    <h1 id = "task_title"> 태스크 이름 : <%= task %> </h1>
+    <hr>
+    <button id="back"> ⬅ </button>
+    <ul>  전체 제출된 파일 수 : <% if (task_pass[0] == undefined) { -%> 
+      0  <% } else { -%> 
+        <%= task_pass[0].pass_task%> <% } -%> </ul>
+    <ul>  전체 Pass된 파일 수 (Task table의 tuple 수) : <% if (task_pass[0] == undefined) { -%> 
+      0  <% } else { -%> 
+        <%= task_pass[0].pass_task%> <% } -%> </ul> 
+    <ul>  원본 데이터 타입별 제출 파일 수 </ul> 
+    <ul> <table border="1" bordercolor="gray" text-align="center"> <th> 원본 데이터 타입 ID  </th> <th> 제출 파일 수 </th> </ul>
+   </table> </ul> 
+    <ul>  원본 데이터 타입별 Pass된 파일 수 </ul>
+    <ul> <table border="1" bordercolor="gray" text-align="center"> <th> 원본 데이터 타입 ID  </th> <th> Pass 파일 수 </th> </ul>
+      </table> </ul> 
+    <br>
+    <hr>
+    <h2> <ul>  참여중인 제출자 list </ul> </h2>
+
+    <ul> <%- list %> </ul>
+    <br>
+
+    
+    </div>
+  </body>
+</html>
+
+<script>
+    document.getElementById("back").addEventListener("click",()=>{
+        window.location.href= './task_summary';
+    });
+</script>

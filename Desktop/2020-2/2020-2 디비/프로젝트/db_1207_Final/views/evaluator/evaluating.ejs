@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<link rel="stylesheet" href="/css/style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+</head>
+<body>
+    <%- include ('evaluator_navbar') %>
+    <div style="margin:4%;">
+        <h2>평가하기</h2>
+        <hr>
+        <%= msg%>
+        <br>
+        <br>
+        <% if (pd_PD_File.length != 0) {%>
+            <h3>파싱 데이터 시퀀스 파일 정보</h3>
+            <%var Nulls = JSON.parse(pd_NullRatio);%>
+            <%var Nulls_Key = Object.keys(Nulls);%>
+            
+            
+            <table bordercolor = 'white'>
+                <p><tr><td>제출자 아이디</td> <td>태스크 이름</td> <td>총 튜플 수</td> <td>중복 튜플 수</td>
+                    <%for(var i =0 ; i<Nulls_Key.length; i++){%>
+                        <td><%=Nulls_Key[i]%> Colunm의 Null 비율</td>    
+                    <% }%>
+                    </tr></p>
+                <p><tr><td><%=pd_SubmitterId%></td> <td><%=pd_TaskName%></td><td><%=pd_TotalTuple%></td><td><%=pd_DuplicatedTuple%></td>
+                    <%for(var i =0 ; i<Nulls_Key.length; i++){%>
+                        <td><%=Nulls[Nulls_Key[i]]%></td>    
+                    <% }%>
+                    </tr></p></tr></p>
+            </table>
+            <br>
+            <br>
+            <%var PD = JSON.parse(pd_PD_File);%>
+            <%var PD_Keys = Object.keys(PD[0]);%>
+            
+            <h3>파싱 데이터 시퀀스 파일 내용</h3>
+            <table bordercolor = 'white'>
+            <tr><%for (var i =0 ; i<PD_Keys.length ; i++){%><td><%=PD_Keys[i]%></td><%}%></tr>
+            <%for (var i = 0; i<PD.length; i++){%>
+                <tr>
+                <% for (var j =0 ; j<PD_Keys.length ; j++){%>
+                    <td><%=PD[i][PD_Keys[j]]%></td>
+                <%}%>
+                </tr>
+            <%}%>
+            </table>
+
+            <br>
+            <br>
+            
+                <h3>파싱 데이터 시퀀스 파일 평가하기</h3>
+                <p><h4><%=pd_TaskName%> 평가 기준
+                <br><%=pd_Guide%></h4></p>
+                
+                <input type= "hidden" id="PD_ID" value="<%=pd_parsingID%>">
+                <div>데이터 파일 품질 점수
+                <select id="score" required>
+                    <option value="">점수 선택</option>
+                    <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option>
+                    <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+                    <option value="8">8</option><option value="9">9</option><option value="10">10</option>
+                </select></div>
+                <div>파일을 태스크 데이터 테이블에 
+                <label><input type="radio" name="chk_info" value="approved" required>저장합니다</label>
+                <label><input type="radio" name="chk_info" value="notapproved">저장하지 않습니다.</label>
+                <br>
+                <br>
+                <input type="submit" value = "제출하기" onclick="submit()"></div>
+                <br>
+            
+            
+
+        <% }%>
+        <br>
+        <br>
+
+    </div>
+</body>
+</html>
+
+<script>
+    var scores = document.getElementById('score')
+    var pnp = document.getElementsByName('chk_info')
+    var pd_id = document.getElementById('PD_ID').value
+    
+    function submit(){
+        var container ={};
+        var PNP;
+        var score =-1
+        if(pnp[0].checked){
+            PNP = pnp[0].value
+        }else{
+            PNP = pnp[1].value
+        }
+        
+        score = scores.options[scores.options.selectedIndex].value;
+        var message ='';
+
+        if(PNP !="approved"){
+            message = "해당 파일에 "+score+"점을 주고 태스크 데이터 테이블에 저장하지 않으시겠습니까?";
+            
+        }
+        else{
+            message = "해당 파일에 "+score+"점을 주고 태스크 데이터 테이블에 저장하시겠습니까?";
+        }
+
+        container.PD_ID=pd_id;
+        container.PNP=PNP;
+        container.Score=score;
+        var pass = confirm(message);
+        if (pass) {
+            fetch('/evaluator/evaluating_process',{
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+            }).then((data)=>{
+                return data.json();
+            }).then((data)=>{
+                var success = data.Succ;
+                var message = data.Msg;
+                var type = data.type;
+                if(success){
+                    window.alert(message);
+                    
+                    window.location.href= '/evaluator';
+                }
+            });
+        } 
+
+    }
+    
+</script>

@@ -1,0 +1,298 @@
+<style>
+    .big-container {
+        background-color:#E6E6E6;
+        padding-top:5px; padding-bottom: 5px;
+        border-radius: 20px;
+        padding:15px;
+    }
+
+    .mini-container {
+        margin: 1%;
+    }
+</style>
+
+<title>
+    <%= title %>
+</title>
+<body>
+<%- include ('admin_navbar') %>
+<div style="margin:4%;">
+    <h1>회원 관리</h1>
+    <hr>
+
+    <h2>검색</h2>
+
+    <div>
+        <div class="big-container">
+            <div class="mini-container">
+                <label for="role"><strong>역할</strong></label>
+                <label><input id="role" name="role" type="radio" value="제출자">제출자</label>
+                <label><input id="role" name="role" type="radio" value="평가자">평가자</label>
+                <label><input id="role" name="role" type="radio" value="관리자">관리자</label>
+                <button id="search_role" style="position:absolute; left:400px; width:120px;">역할로 검색</button>
+                <br>
+            </div>
+
+            <div class="mini-container">
+                <label for="age"><strong>연령</strong>(만)</label>
+                <label><input id="age" name="age" type="radio" value="20">~20대</label>
+                <label><input id="age" name="age" type="radio" value="30">30대</label>
+                <label><input id="age" name="age" type="radio" value="40">40대~</label>
+                <button id="search_age" style="position:absolute; left:400px; width:120px;">연령으로 검색</button>
+                <br>
+            </div>
+
+            <div class="mini-container">
+                <label for="gender"><strong>성별</strong></label>
+                <label><input id="gender" name="gender" type="radio" value="M" autocomplete="off">남성</label>
+                <label><input id="gender" name="gender" type="radio" value="F" autocomplete="off">여성</label>
+                <button id="search_gender" style="position:absolute; left:400px; width:120px;">성별로 검색</button>
+                <br>
+            </div>
+
+            <div class="mini-container">
+                <label for="task"><strong>참여중인 태스크</strong></label>
+                <select name="task" id="task">
+                    <option value="">태스크 선택</option>
+                    <% for(var i = 0; i < tasks.length; i ++){%>
+                    <option value='<%=tasks[i].TName%>'><%= tasks[i].TName %></option>
+                    <% } %>
+                </select>
+                <button id="search_task" style="position:absolute; left:400px; width:120px;">태스크로 검색</button>
+                <br>
+            </div>
+
+            <div class="mini-container">
+                <label for="id"><strong>ID</strong></label>
+                <input id="id" name="id" type="text" placeholder="검색할 ID 입력">
+                <button id="search_id" style="position:absolute; left:400px; width:120px;">아이디로 검색</button>
+                <br>
+            </div>
+        </div>
+
+    </div>
+
+    <hr>
+
+
+    <div style="margin:1%;">
+    <table border="1" bordercolor="gray" text-align="center">
+        <th>ID</th>
+        <th>이름</th>
+        <th>역할</th>
+        <th>성별</th>
+        <th>생년월일</th>
+        <th>상세 정보</th>
+        <% for(var i = 0; i < data.length; i++){ %>
+        <tr>
+            <td><%= data[i].AccID %></td>
+            <td><%= data[i].Name %></td>
+            <td>
+                <% if(data[i].AccID_Admin != null){%>
+                관리자
+                <% } else if(data[i].AccID_Submit != null){%>
+                제출자
+                <% } else if(data[i].AccID_Eval != null){ %>
+                평가자
+                <% } %>
+            </td>
+            <td><%= data[i].Gender %></td>
+            <td><%= data[i].DOB %></td>
+            <td>
+                <button id='<%= data[i].AccID %>_detail' value='<%= data[i].AccID %>'>상세 정보</button>
+            </td>
+        </tr>
+        <% } %>
+    </table>
+    </div>
+
+</div>
+</body>
+
+<script>
+    // 아이디로 검색
+    document.getElementById("search_id").addEventListener("click",()=>{
+        var container ={};
+        container.id=document.getElementById("id").value;
+        console.log(1);
+
+        fetch(`/administrator/member_process`, {
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container),
+        }).then((data)=>{
+            console.log(2);
+            return data.json();
+        }).then((data)=>{
+            console.log(3);
+            var success = data.success;
+            var message = data.message;
+            var search_result = data.search_result;
+            if(success){
+                window.location.href= '/administrator/member_result?id='+ search_result.AccID;
+            }else{
+                window.alert(message);
+                window.location.href= '/administrator/member_mng';
+            }
+        });
+    });
+
+
+    // 성별로 검색
+    document.getElementById("search_gender").addEventListener("click",()=>{
+        var container = {};
+        var temp = document.getElementsByName("gender");
+        
+        if(temp[0].checked){
+            container.gender = temp[0].value;
+        }else if(temp[1].checked){
+            container.gender = temp[1].value;
+        }
+        console.log(1);
+
+        fetch(`/administrator/member_process`, {
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+        }).then((data)=>{
+            console.log(2);
+            return data.json();
+        }).then((data)=>{
+            console.log(3);
+            var success = data.success;
+            var message = data.message;
+            var search_result = data.search_result;
+            if(success){
+                window.location.href= '/administrator/member_result?gender='+ search_result.Gender;
+            }else{
+                window.alert(message);
+                window.location.href= '/administrator/member_mng';
+            }
+        });
+    });
+
+    // 연령으로 검색
+    document.getElementById("search_age").addEventListener("click",()=>{
+        var container = {};
+        var temp = document.getElementsByName("age");
+        
+        if(temp[0].checked){
+            container.age = temp[0].value;
+        }else if(temp[1].checked){
+            container.age = temp[1].value;
+        }else if(temp[2].checked){
+            container.age = temp[2].value;
+        }
+        console.log(1);
+
+        fetch(`/administrator/member_process`, {
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+        }).then((data)=>{
+            console.log(2);
+            return data.json();
+        }).then((data)=>{
+            console.log(3);
+            var success = data.success;
+            var message = data.message;
+            var search_result = data.search_result;
+            if(success){
+                console.log(search_result);
+                if(search_result['DOB']>= '1991-01-01'){
+                    window.location.href= '/administrator/member_result?age=' + "20s";
+                }else if('1981-01-01' <= search_result['DOB'] && search_result['DOB']<= '1990-12-31'){
+                    window.location.href= '/administrator/member_result?age=' + "30s";
+                }else if(search_result['DOB'] <= '1980-12-31'){
+                    window.location.href= '/administrator/member_result?age=' + "40s";
+                }
+            }else{
+                window.alert(message);
+                window.location.href= '/administrator/member_mng';
+            }
+        });
+    });
+
+    // 역할로 검색
+    document.getElementById("search_role").addEventListener("click",()=>{
+        var container = {};
+        var temp = document.getElementsByName("role");
+        
+        if(temp[0].checked){
+            container.role = temp[0].value;
+        }else if(temp[1].checked){
+            container.role = temp[1].value;
+        }else if(temp[2].checked){
+            container.role = temp[2].value;
+        }
+
+        fetch(`/administrator/member_process`, {
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            var success = data.success;
+            var message = data.message;
+            var search_result = data.search_result;
+            if(success){
+                if('AccID_Admin' in search_result){
+                    window.location.href= '/administrator/member_result?role=' + "admin";
+                }else if('AccID_Eval' in search_result){
+                    window.location.href= '/administrator/member_result?role=' + "eval";
+                }else{
+                    window.location.href= '/administrator/member_result?role=' + "submit";
+                }
+            }else{
+                window.alert(message);
+                window.location.href= '/administrator/member_mng';
+            }
+        });
+    });
+
+    // 태스크로 검색
+    document.getElementById("search_task").addEventListener("click",()=>{
+        var container = {};
+        var temp = document.getElementById("task");
+        var selected = temp.options[temp.selectedIndex].value;
+        container.task = selected;
+
+        fetch(`/administrator/member_process`, {
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            var success = data.success;
+            var message = data.message;
+            var search_result = data.search_result;
+            if(success){
+                window.location.href= '/administrator/member_result?task='+ search_result.Task_Name;
+            }else{
+                window.alert(message);
+                window.location.href= '/administrator/member_mng';
+            }
+        });
+
+    });
+
+    //상세버튼 클릭시
+    const detail_buttons = document.querySelectorAll('[id$="_detail"]');
+    for(let i = 0; i < detail_buttons.length; i ++){
+        detail_buttons[i].addEventListener("click", ()=>{
+            window.location.href='/administrator/member_detail?id=' + detail_buttons[i].value;
+        })
+    }
+</script>

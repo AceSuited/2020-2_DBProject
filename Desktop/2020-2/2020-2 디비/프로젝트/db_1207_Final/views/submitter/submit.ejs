@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<link rel="stylesheet" href="/css/style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+</head>
+<body>
+    <%- include ('submitter_navbar') %>
+    <div style="margin:4%;">
+        <form onsubmit="return check_flags()" enctype="multipart/form-data" action="/submitter/task/submit/<%= tname %>/submit_process" method = post>
+            <h2><%= tname %> 로그 수집</h2>
+            <hr>
+            <input type= "hidden" name="tname" value="<%= tname %>">
+            <div>원본 데이터 타입 스키마 선택</div>
+            <p><%- select %></p>
+            <p>원본 데이터 시퀀스 파일 첨부 (csv)</p>
+            <p><input type="file" name="file" accept=".csv" required/></p>
+            <p><div>회차</div></p>
+            <p><input type="number" name="nth" min="1" max="999999" placeholder = "숫자를 입력해주세요" required/></p>
+            <p>기간</p>
+            <p><input type="date" name="start_date"> ~ <input type="date" name="end_date" required/></p>
+            <br>
+            <div><input type="submit" value = "제출하기"></div>
+            <br>
+        </form>
+    </div>
+</body>
+</form>
+</html>
+
+<script>
+    var file = document.getElementsByName('file')
+    var nth = document.getElementsByName('nth')
+    var tname = document.getElementById('1')[0].value
+    alert(end_date[0].value)
+    function check_flags(){
+        var no_problems = false
+        var date_pass = false 
+        var start_date= document.getElementsByName('start_date')[0].value
+        var end_date = document.getElementsByName('end_date')[0].value
+        var list1 = start_date.split('-')
+        var list2 = end_date.split('-')
+        var start_year = list1[0]
+        var start_month = list1[1] 
+        var start_day = list1[2]
+        var end_year = list2[0]
+        var end_month = list2[1]
+        var end_day = list2[2]
+        if(end_year > start_year){
+            date_pass = true
+        }
+        else if(end_year === start_year){
+            if(end_month > start_month){
+                date_pass = true
+            }
+            else if(end_month === start_month){
+                if(end_day >= start_day){
+                    date_pass = true
+                }
+                else{
+                    date_pass = false
+                }
+            }
+            else{
+                date_pass = false
+            }
+        }
+        else{
+            date_pass = false
+        }
+        no_problems = date_pass
+        if(!no_problems){
+            alert('올바른 형식으로 제출해주세요')
+        }
+        return no_problems
+    }
+
+    function submit_button(){
+        var message = "제출했습니다"
+        alert(message)
+    }
+</script>

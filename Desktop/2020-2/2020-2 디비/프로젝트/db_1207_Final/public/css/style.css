@@ -1,0 +1,26 @@
+body{
+    color:black;   
+}
+a{
+    color: black;
+    text-decoration:none; 
+}
+.mainpage-body{
+    background-image: url('bg.jpg');
+    background-size: cover;
+    color:white;
+    height:100%;
+}
+.mainpage-container{
+    display:flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.mainpage-content{
+    margin-top:36vh;
+    color:#F2F2F2;
+    font-size: 25px;
+    text-shadow: 2px 2px 5px #000;
+
+}

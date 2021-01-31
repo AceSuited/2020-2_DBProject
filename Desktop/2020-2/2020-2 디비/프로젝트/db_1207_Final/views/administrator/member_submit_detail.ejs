@@ -1,0 +1,50 @@
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+<style>
+    .big-container {
+        background-color: #E6E6E6;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border-radius: 20px;
+        padding: 15px;
+    }
+
+    .mini-container {
+        margin: 1%;
+    }
+</style>
+
+<title>
+    <%= title %>
+</title>
+<body>
+<%- include ('admin_navbar') %>
+    <div style="margin:30px;">
+        <h1>회원 관리</h1>
+        <hr>
+
+        <h2>상세</h2>
+        <button name="back" id="back" style="font-size: larger; margin:1%;">⬅</button>
+
+        <div>
+            <div class="big-container">
+                <%=AccID%>님의 <%= taskName %> 통계정보
+            </div>
+        </div>
+
+        <hr>
+        
+        <ul>
+            <li><strong>제출 파일 수:</strong> <%= numSubmit%></li>
+            <li><strong>패스된 파일 수:</strong> <%= numPass%></li>
+            <br>
+        </ul>
+
+    </div>
+</body>
+
+<script>
+    document.getElementById("back").addEventListener("click",()=>{
+        window.location.href= './member_detail?id=<%=AccID%>';
+    });
+</script>

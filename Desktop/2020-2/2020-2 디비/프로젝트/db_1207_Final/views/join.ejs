@@ -1,0 +1,129 @@
+<link rel="stylesheet" type="text/css" href="css/style.css">    
+    <body>
+        <%- include ('navbar') %>
+        <div style="margin:2%;">
+            <p><h2>회원가입</h2></p>
+            <hr>
+            <p>아이디 <input type="text" id="ID" placeholder="ID" >
+                <button id="ID_Check">중복 확인</button>
+            </p>
+            <p>패스워드 <input type="password" id="PASSWORD" placeholder="PW" ></p>
+            <p>패스워드 확인 <input type="password" id="PWVALID" placeholder="PW확인" ></p>
+            <p>이름 <input type="text" id="NAME" placeholder="이름" ></p>
+            <p>성별 <input type="radio"  name="gender" value="M">남
+                <input type="radio"  name="gender" value="F">여</p>
+            <p>회원유형 <input type="radio"  name="type" value="E">평가자
+                <input type="radio"  name="type" value="S">제출자</p>
+            <p>주소 <input type="text" id="ADDRESS" placeholder="주소" ></p>
+            <p>생일 <input type="date" id="BIRTHDATE" placeholder="EX)1999-12-31"></p>
+            <p><label>전화번호 <input type="tel" id="PHONENUMBER" placeholder = "숫자만 입력해 주세요" ></label></p>
+            <br>
+            <button id="join" style="width:250px; height:35px; border-radius:60px;">회원가입</button>
+        </div>  
+    </body>
+
+<script>
+    var flag = false;
+
+    document.getElementById("join").addEventListener("click",()=>{
+        var container ={};
+        container.ID=document.getElementById("ID").value;
+        container.PASSWORD=document.getElementById("PASSWORD").value;
+        container.PWVALID=document.getElementById("PWVALID").value;
+        container.NAME=document.getElementById("NAME").value;
+        
+        var temp = document.getElementsByName("gender");
+        
+        if(temp[0].checked){
+            container.GENDER = temp[0].value; 
+        }else if(temp[1].checked){
+            container.GENDER = temp[1].value;
+        }
+
+        temp = document.getElementsByName("type");
+        if(temp[0].checked){
+            container.TYPE = temp[0].value; 
+        }else if(temp[1].checked){
+            container.TYPE = temp[1].value;
+        }
+
+        container.ADDRESS=document.getElementById("ADDRESS").value;
+        container.BIRTHDATE=document.getElementById("BIRTHDATE").value;
+       
+       
+        container.PHONENUMBER=document.getElementById("PHONENUMBER").value;
+        
+        if(isNaN(parseInt(container.PHONENUMBER, 10))){
+            window.alert("전화번호는 숫자만 입력해 주세요");
+            return;
+      }
+
+        if(container.ID == "" || container.PASSWORD == "" || container.PWVALID == "" || container.NAME =="" || container.GENDER ==undefined || container.ADDRESS =="" || container.BIRTHDATE =="" || container.PHONENUMBER ==""|| container.TYPE == undefined){
+            window.alert("빠짐 없이 형식에 맞추어 정확히 입력해 주세요");
+            location.reload();
+            
+        }else if(!flag){
+            window.alert("아이디 중복체크를 해주세요");
+            return;
+        }else if(container.PASSWORD != container.PWVALID){
+            window.alert("비밀번호가 일치하지 않습니다.");
+            return;
+        }
+        else{
+        fetch('/join_process',{
+          method : "POST",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+            
+            console.log(message);
+            if(success){
+                window.alert(message);
+                window.location.href= "/" 
+            }else{
+                window.alert(message);
+                
+            }
+        })
+    }
+    })
+
+    document.getElementById("ID_Check").addEventListener("click",()=>{
+        container = {}
+        container.ID = document.getElementById("ID").value;
+        if(container.ID  == ""){
+            window.alert("아이디를 입력해 주세요");
+            window.location.href= "/join";
+            return;
+        }
+        fetch('/ID_Check',{
+          method : "POST",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            var duplicate = data.duplicate;
+            var message = data.message;
+            if(duplicate){
+                window.alert(message);
+                window.location.href= "/join";
+            }else{
+                window.alert(message);
+                flag = true;
+            }
+                
+        });
+
+    });
+
+</script>

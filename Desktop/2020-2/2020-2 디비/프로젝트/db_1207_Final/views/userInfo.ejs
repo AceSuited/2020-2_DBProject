@@ -1,0 +1,47 @@
+<html>
+  <head>
+    <%- include('header') %>
+  </head>
+  <body>
+    <% if (type=='administrator'){%>
+      <%- include ('admin_navbar') %>
+    <%} else if(type=='evaluator'){%>
+      <%- include ('evaluator_navbar') %>
+    <%}else if(type=='submitter'){%>
+      <%- include ('submitter_navbar') %>
+    <%}%>
+    
+    <div style="margin:30px;">
+      <h1>프로필</h1>
+      <hr>
+  
+      <div style="margin:1%;">
+        <p>회원유형: <%= type%></p>
+        <p>아이디: <%= AccID%></p>
+        <p>패스워드: <%= Password%></p>
+        <p>이름: <%= Name%></p>
+        <p>성별: <%= Gender%></p>
+        <p>전화번호: <%= Phone%></p>
+        <p>주소: <%= Address%></p>
+        <p>생년월일: <%= DOB%></p>
+        <button id="REVISE">회원정보수정</button>
+        <button id="DELETE">회원탈퇴</button>
+      </div>
+  
+  </div>
+    
+  </body>
+  <script>
+    document.getElementById("REVISE").addEventListener("click",()=>{
+        window.location.href= '/revise'
+    });
+    
+    document.getElementById("DELETE").addEventListener("click",()=>{
+        var conf = confirm("정말로 탈퇴하시겠습니까?");
+        if(conf){
+          window.location.href = '/deleteUser'
+        }else{}
+    });
+
+  </script>
+</html>

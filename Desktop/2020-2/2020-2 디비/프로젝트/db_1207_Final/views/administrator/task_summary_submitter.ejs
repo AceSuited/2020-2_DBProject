@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <%- include('header') %>
+  </head>
+  <body>
+    <%- include ('admin_navbar') %>
+    <div style="margin:4%;">
+    <h1> 제출자 <%= id_submitter %> 님의 참여 중인 태스크</h1>
+    <hr>
+    <button id="back">⬅태스크통계</button>
+    <%- list %>
+    <br>
+
+  
+</div>
+</body>
+</html>
+
+<script>
+  document.getElementById("back").addEventListener("click",()=>{
+      window.location.href= '/administrator/task_summary' ;
+  });
+</script>

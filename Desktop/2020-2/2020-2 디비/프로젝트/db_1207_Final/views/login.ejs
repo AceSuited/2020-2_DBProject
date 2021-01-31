@@ -1,0 +1,37 @@
+<p><input type="text" id="ID" placeholder="ID"></p>
+<p><input type="password" id="PASSWORD" placeholder="PASSWORD"></p>
+
+
+<button id="submit">로그인</button>
+<button id="JOIN">회원가입</button>
+<script>
+    document.getElementById("submit").addEventListener("click",()=>{
+        var container ={};
+        container.ID=document.getElementById("ID").value;
+        container.PASSWORD=document.getElementById("PASSWORD").value;
+        
+        fetch('/login_process',{
+          method : "POST",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            var success = data.success;
+            var message = data.message;
+            var type = data.type;
+            if(success){
+                window.location.href= `/${type}`;
+            }else{
+                window.alert(message);
+                window.location.href= '/login';
+            }
+        });
+    });
+
+    document.getElementById("JOIN").addEventListener("click",()=>{
+        window.location.href= '/join_gate'
+    });
+</script>

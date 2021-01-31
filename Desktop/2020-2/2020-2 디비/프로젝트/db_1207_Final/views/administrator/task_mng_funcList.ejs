@@ -1,0 +1,425 @@
+<html>
+  <head>
+    <%- include('header') %>
+  </head>
+  <body>
+    <%- include ('admin_navbar') %>
+    <div style="margin:4%;">
+    <h1>태스크 관리</h1>
+    <hr>
+    <a href="/administrator">|  메인페이지로 돌아가기  |</a>   
+
+    <h2> 태스크명: <%= current_task %>  </h2> 
+    <br>
+    <h2> 태스크 설명: <%= explanation %>  </h2>
+    <br>
+    <br>
+    <button id = subitter_list  type="submit"   style="background-color:transparent;  border:0px transparent solid; "> | 참여 신청자 명단 </button>
+    <button id = add_OGDT type="submit"   style="background-color:transparent;  border:0px transparent solid;">| 원본 데이터 타입 추가 </button>
+    <button id = pass_standard type="submit"    style= "background-color:transparent;  border:0px transparent solid; ">| PASS 기준 설정  </button>
+    <button id = tdt_download type="submit"    style= "background-color:transparent;  border:0px transparent solid; ">| 태스크데이터 테이블 다운로드 | </button>
+    
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <div id = submitter_list_present></div>
+    <div id = add_OGDT_present></div>
+    <div id = pass_standard_present></div>
+    <div id = tdt_download_present></div>
+    <br>
+    <br>
+    <br>
+    <br>
+    
+  
+    </div>
+  </body>
+</html>
+
+<script>
+   document.getElementById("subitter_list").addEventListener("click", ()=>{
+    container = {}  
+    fetch('/administrator/task_mng_submitter_list', {
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+        }).then((data)=>{
+             return data.json();
+        }).then((data)=>{
+            if(data.success){
+              
+              
+              submitterList(data["data"]);
+            }
+            else{
+              window.alert(data["message"]);
+              document.getElementById("submitter_list_present").innerHTML ="<p>참여자 정보가 없습니다.</P> ";
+              return;
+            }
+            
+        });
+    })
+   
+   function submitterList(data){
+      
+     
+      
+      document.getElementById('submitter_list_present').innerHTML = "";
+      document.getElementById('add_OGDT_present').innerHTML = "";
+      document.getElementById('pass_standard_present').innerHTML = "";
+      
+      var docId = document.getElementById("submitter_list_present");
+      console.log(data);
+      if(data.length == 0){
+        docId.innerHTML += 
+        `<p>참여 신청중인 제출자가 없습니다.</P> `
+      }
+      else{
+        var approved_data = [];
+        var not_approved_data = []
+
+        for(var i = 0; i < data.length; i++){
+          var d = data[i];
+          
+          if(d.Approved == 1){
+            approved_data.push(d)
+          }
+          else{
+            not_approved_data.push(d);
+          }
+
+        }
+
+
+        docId.innerHTML += ` 
+          <h2>  참여 중인 제출자 </h2>
+          `;
+       
+          for(var i = 0; i < approved_data.length; i++){
+            
+            var temp = approved_data[i];
+            if(temp.Approved == 1){
+              var textnode = document.createTextNode(`${temp.Sub_ID}`);
+              docId.innerHTML += "<br>";
+              docId.appendChild(textnode);
+            }
+            
+        }
+        docId.innerHTML += ` 
+          <h2>  참여 승인 대기 중인 제출자 </h2>
+          `;
+          for(var i = 0; i < not_approved_data.length; i++){
+            var temp = not_approved_data[i];
+            if(temp.Approved == 0){
+              
+              var textnode = document.createTextNode(`${temp.Sub_ID}`);
+              docId.innerHTML += "                   <br>";
+              docId.appendChild(textnode);
+              docId.innerHTML += `<button id = approve_${i} type="submit"  style="background-color:transparent;  border:0px transparent solid; margin-left:100px; "> | 참여 승인 | </button>`;
+              docId.innerHTML += `<button id = refuse_${i} type="submit"  style="background-color:transparent;  border:0px transparent solid; margin-left:100px; "> | 참여 거절 | </button>`;           
+             
+            }
+            
+        }
+
+
+        
+
+   
+      }
+
+      const approve_buttons = document.querySelectorAll('[id^="approve_"]');
+      console.log(approve_buttons);
+      
+      for(let i = 0; i < approve_buttons.length; i ++){
+        
+       
+        
+        approve_buttons[i].addEventListener("click", ()=>{
+          
+          var t = (not_approved_data[i]); 
+          container = {};
+          container.Sub_ID = t.Sub_ID;
+          
+          fetch('/administrator/task_mng_submitter_list_approve', {
+                method : "POST",
+                headers:{
+                "Content-Type": "application/json"
+                },
+                body : JSON.stringify(container)
+                }).then((data)=>{
+                  return data.json();
+                }).then((data)=>{
+                  if(data.success){
+                    
+                    window.alert(data.message);
+                    window.location.reload();
+                   
+                }
+                else{
+                  window.alert(data.message);
+                  window.location.reload();
+                  return;
+                }
+            
+         });
+        });
+      }
+      
+      const refuse_buttons = document.querySelectorAll('[id^="refuse_"]');
+      for(let i = 0; i < refuse_buttons.length; i ++){
+        
+       
+        
+        refuse_buttons[i].addEventListener("click", ()=>{
+          
+          var t = (not_approved_data[i]); 
+          container = {};
+          container.Sub_ID = t.Sub_ID;
+          
+          fetch('/administrator/task_mng_submitter_list_refuse', {
+                method : "POST",
+                headers:{
+                "Content-Type": "application/json"
+                },
+                body : JSON.stringify(container)
+                }).then((data)=>{
+                  return data.json();
+                }).then((data)=>{
+                  if(data.success){
+                    
+                    window.alert(data.message);
+                    window.location.reload();
+                   
+                }
+                else{
+                  window.alert(data.message);
+                  window.location.reload();
+                  return;
+                }
+            
+         });
+        });
+      }
+
+
+
+    }
+    
+  document.getElementById("add_OGDT").addEventListener("click", () => {
+    document.getElementById('submitter_list_present').innerHTML = "";
+      document.getElementById('add_OGDT_present').innerHTML = "";
+      document.getElementById('pass_standard_present').innerHTML = "";
+      document.getElementById("tdt_download_present").innerHTML = "";
+      var container  = {};
+      fetch('/administrator/task_mng_addOGDT', {
+            method : "POST",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+        }).then((data)=>{
+             return data.json();
+        }).then((data)=>{
+         
+          addOGDT(data.num, data.tdt_name, data.attributeNames, data.container);
+         
+        });
+  })
+
+  function addOGDT(num, tdt_name, attributeNames, container){
+  
+
+   document.getElementById(`add_OGDT_present`).innerHTML = ` 
+    
+    <B>맵핑되는 태스크 데이터 타입 테이블 이름: ${tdt_name}<B>
+      <br>
+      <br>
+      <br>
+    원본 데이터 타입 이름
+    <br style = >
+    <input type="text" id = "OGDataTableName"  placeholder="원본 데이터 타입 이름">
+    <br>
+    <br>
+    `;
+
+    for(var j = 0; j < (num); j++){
+
+     var newLine = document.createElement("br");
+    
+     var textfield1 = document.createElement("input");
+     
+     
+     var index = document.createTextNode(`태스크 데이터 테이블의 속성 '${attributeNames[j]}' 와 맵핑되는 속성 이름`);
+     document.getElementById(`add_OGDT_present`).appendChild(index);
+
+     textfield1.type = "text";
+     textfield1.placeholder = "OG속성이름";
+     textfield1.id = "og_name_" + `${j}`;
+     document.getElementById(`add_OGDT_present`).appendChild(textfield1);
+               
+
+         
+     document.getElementById(`add_OGDT_present`).appendChild(newLine);
+   }
+   
+   document.getElementById(`add_OGDT_present`).innerHTML +=`<br> <button id="CREATE"style = "background-color:transparent;  border:0px transparent solid;"margin:30px;">| 추가하기 |</button>`
+
+   
+   document.getElementById(`CREATE`).addEventListener('click', ()=>{
+    var container_new = {};
+    container_new.num = num;
+    container_new.OGDT_name = document.getElementById('OGDataTableName').value
+  
+    var OG_names = [];
+    for(var i = 0; i<(num); i++){
+      var temp = {}
+      temp.TD_mapping_name = attributeNames[i];
+      temp.OG_name = document.getElementById(`og_name_${i}`).value;
+      
+      if(temp.OG_name == ""){
+          window.alert(`태스크 데이터 테이블의 속성 '${attributeNames[i]}'와 맵핑되는 속성의 이름을 써주세요`);
+          return;
+      }
+      else if(OG_names.includes(temp.OG_name)){
+          window.alert('중복된 속성이름이 존재합니다. 다시 입력해 주세요');
+          return;
+      
+      }
+      OG_names[i] = temp.OG_name;
+
+      
+      container_new[`OG_attribute_${i}`] = temp;
+      if(temp.TD_mapping_name == container.pk_name){
+        container_new.og_pk_name = temp.OG_name;
+      }
+    }
+ 
+
+
+     fetch('/administrator/task_mng_createOGDT', {
+  method:"POST",
+  headers:{
+    "Content-Type": "application/json"
+  },
+  body : JSON.stringify(container_new)
+             
+}).then((data)=>{
+      return data.json();
+  }).then((data)=>{
+      
+      var success = data.success;
+      var message = data.message;
+
+      if(success){
+          window.alert(message);
+          window.location.reload();
+        }else{
+          window.alert(message);
+          return;
+      }
+  })
+   })
+  }
+
+  document.getElementById("pass_standard").addEventListener("click", () => {
+    document.getElementById('submitter_list_present').innerHTML = "";
+      document.getElementById('add_OGDT_present').innerHTML = "";
+      document.getElementById('pass_standard_present').innerHTML = "";
+      document.getElementById("tdt_download_present").innerHTML = "";
+
+
+      var default_guideline ="기존 가이드라인이 없습니다.";
+      document.getElementById(`add_OGDT_present`).innerHTML = ` 
+
+    <h3>PASS 기준 설정</h3>
+      <br>
+      <br>
+     
+      <b>기존 가이드라인<b>
+      <br>
+      <br>
+      `
+   
+    fetch('/administrator/task_mng_default_guideline', {
+            method : "GET",
+            headers:{
+                "Content-Type": "application/json"
+            },
+           
+        }).then((data)=>{
+             return data.json();
+        }).then((data)=>{
+          var temp = data["data"];
+          if(temp[0].Guideline != null){
+              
+              
+              default_guideline = temp[0].Guideline;
+              
+              
+              document.getElementById(`add_OGDT_present`).innerHTML += `${default_guideline} <br><br> <B>가이드라인 변경<B> <br><br>` 
+              return submit_guideline();
+          }else{
+            document.getElementById(`add_OGDT_present`).innerHTML += `${default_guideline} <br><br> <B>가이드라인 입력<B> <br><br>` 
+            return submit_guideline();
+           }
+           
+
+        });
+    
+       
+  })
+
+  function submit_guideline(){
+      document.getElementById(`add_OGDT_present`).innerHTML += ` 
+          <textarea id = guideline  placeholder="패스 기준 관련 가이드라인 입력" style= "resize: vertical; width:70%; border:1; overflow:visible;text-overflow:ellipsis;" row=30></textarea>
+          <br>
+          <br>
+          <button id = guideline_submit type="submit"    style= "background-color:transparent;  border:0px transparent solid; ">|  설정하기  |</button>
+          `;
+
+      document.getElementById("guideline_submit").addEventListener("click", ()=>{
+      container = {} 
+      var guideline = document.getElementById("guideline").value;
+      container.guideline = guideline;
+      fetch('/administrator/task_mng_guideline', {
+            method : "PUT",
+            headers:{
+                "Content-Type": "application/json"
+            },
+            body : JSON.stringify(container)
+        }).then((data)=>{
+             return data.json();
+        }).then((data)=>{
+            if(data.success){
+              
+              window.alert(data.message);
+              window.location.reload();  
+             }
+            else{
+              window.alert(data["message"]);
+              
+              return;
+            }
+            
+        });
+
+    })
+  }
+
+  document.getElementById("tdt_download").addEventListener("click", ()=>{
+      document.getElementById('submitter_list_present').innerHTML = "";
+      document.getElementById('add_OGDT_present').innerHTML = "";
+      document.getElementById('pass_standard_present').innerHTML = "";
+      document.getElementById("tdt_download_present").innerHTML = "";
+
+
+      var docID =  document.getElementById("tdt_download_present");
+      docID.innerHTML +=`
+      <a href= "/administrator/task_mng_tdt_download"> |  현재까지 태스크 데이터 테이블에 모인 모든 튜플들을 csv 파일로 다운로드  |</a>`
+  })
+</script>

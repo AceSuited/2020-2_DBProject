@@ -1,0 +1,38 @@
+<html>
+<link rel="stylesheet" type="text/css"href="/css/style.css">
+  <head>
+    <%- include('header') %>
+    
+  </head>
+  <body>
+    <div hidden id='<%= errormessage %>' name=error value="hello"><%= errormessage %></div>
+    <script>
+        var error_msg= document.getElementsByName("error").item(0).id
+        console.log(error_msg)
+        alert(error_msg)
+    </script>
+    <div class="mainpage-body">
+      <%- include ('submitter_navbar') %>
+      <!--
+      <h1>Site</h1>
+    
+    
+      <ul>
+          Welcome To Site.
+      </ul>
+      -->
+      <div class="mainpage-container">
+        <div class="mainpage-content">
+          <h2>Welcome! <%= AccID %> ( <%= name %> <%= role %>님)</h2>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
+<script>
+    function error_alert(){
+        var error_msg= document.getElementsByName("error")
+        alert(error_msg)
+    }
+</script>

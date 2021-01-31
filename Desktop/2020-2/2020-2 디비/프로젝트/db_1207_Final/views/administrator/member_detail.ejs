@@ -1,0 +1,89 @@
+<link rel="stylesheet" type="text/css" href="css/style.css">
+
+<style>
+    .big-container {
+        background-color: #E6E6E6;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        border-radius: 20px;
+        padding: 15px;
+    }
+
+    .mini-container {
+        margin: 1%;
+    }
+</style>
+
+<title>
+    <%= title %>
+</title>
+<body>
+<%- include ('admin_navbar') %>
+    <div style="margin:30px;">
+        <h1>회원 관리</h1>
+        <hr>
+
+        <h2>상세</h2>
+        <button name="back" id="back" style="font-size: larger; margin:1%;">⬅</button>
+
+        <div>
+            <div class="big-container">
+                <%=AccID%>님의 상세정보
+            </div>
+        </div>
+
+        <hr>
+        
+        <ul>
+            <li><strong>회원유형:</strong> <%= type%></li>
+            <li><strong>아이디:</strong> <%= AccID%></li>
+            <li><strong>이름:</strong> <%= Name%></li>
+            <li><strong>성별:</strong> <%= Gender%></li>
+            <li><strong>전화번호:</strong> <%= Phone%></li>
+            <li><strong>주소:</strong> <%= Address%></li>
+            <li><strong>생년월일:</strong> <%= DOB%></li>
+            <br>
+            <% if(type=='submitter'){%>
+                <li><strong>참여중인 태스크</strong></li>
+                <%for(var i = 0; i < tasks.length; i ++){%>
+                    -<%=tasks[i].Task_Name%><button id='<%= tasks[i].Task_Name %>_detail' value='<%= tasks[i].Task_Name %>'>상세</button><br>
+                <%}%>
+                <br>
+                <li><strong>승인 대기중인 태스크</strong></li>
+                <%for(var i = 0; i < not_tasks.length; i ++){%>
+                    -<%=not_tasks[i].Task_Name%><br>
+                <%}%>
+                <br>
+                <li><strong>태스크 참여 통계정보</strong></li>
+                <p><strong>[제출한 전체 파일 수]: </strong><%= numSubmit %></p>
+                <p><strong>[패스된 전체 파일 수]: </strong><%= numPass %></p>
+            <%} else if(type=='evaluator'){%>
+                <li><strong>평가한 파싱데이터시퀀스파일 목록</strong></li>
+                <button id="monitoring" name="monitoring" value="<%=AccID%>">상세보기</button>
+                <br>
+                <%for(var i = 0; i < pds_ids.length; i ++){%>
+                    - ID:<%=pds_ids[i].PDS_ID%>
+                <%}%>
+            <%}%>
+        </ul>
+
+    </div>
+</body>
+
+<script>
+    const detail_buttons = document.querySelectorAll('[id$="_detail"]');
+    for(let i = 0; i < detail_buttons.length; i ++){
+        detail_buttons[i].addEventListener("click", ()=>{
+            console.log(detail_buttons[i].value);
+            window.location.href='./member_submit_detail?id=<%=AccID%>?task=' + detail_buttons[i].value;
+        })
+    }
+
+    document.getElementById("back").addEventListener("click",()=>{
+        window.location.href= './member_mng';
+    });
+
+    document.getElementById("monitoring").addEventListener("click", ()=>{
+        window.location.href= './member_evaluator_detail?id=' + document.getElementById("monitoring").value;
+    })
+</script>

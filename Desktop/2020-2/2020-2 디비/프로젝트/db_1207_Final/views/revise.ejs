@@ -1,0 +1,368 @@
+<html>
+  <head>
+    <%- include('header') %>
+  </head>
+  <body>
+    <% if (type=='administrator'){%>
+      <%- include ('admin_navbar') %>
+    <%} else if(type=='evaluator'){%>
+      <%- include ('evaluator_navbar') %>
+    <%}else if(type=='submitter'){%>
+      <%- include ('submitter_navbar') %>
+    <%}%>
+    <div style="margin:2%;">
+      <h1>회원정보 수정</h1>
+      <hr>
+      <p>아이디<input type="text" id="ID" placeholder="ID" >
+        <button id="ID_Check">중복 확인</button>
+        <button id="C_ID">변경하기</button>
+      </p>
+      <p>패스워드<input type="password" id="PASSWORD" placeholder="PW" ></p>
+      <p>패스워드 확인<input type="password" id="PWVALID" placeholder="PW확인" >
+        <button id="C_PASSWORD">변경하기</button></p>
+      <p>이름<input type="text" id="NAME" placeholder="이름" >
+        <button id="C_NAME">변경하기</button></p>
+      <p>성별<input type="radio"  name="gender" value="M">남
+            <input type="radio"  name="gender" value="F">여
+            <button id="C_GENDER">변경하기</button></p>
+      <p>회원유형 <%=type%></p>
+      <p>주소<input type="text" id="ADDRESS" placeholder="주소" >
+        <button id="C_ADDRESS">변경하기</button></p>
+      <p>생일<input type="date" id="BIRTHDATE" placeholder="EX)1999-12-31">
+        <button id="C_DOB">변경하기</button></p>
+      <p><label>전화번호 <input type="tel" id="PHONENUMBER" placeholder = "숫자만 입력해 주세요" ></label>
+        <button id="C_PHONENUMBER">변경하기</button></p>
+      <button id="DONE">메인페이지로</button>
+    </div>
+
+  </body>
+  <script>
+    
+    document.getElementById("DONE").addEventListener("click",()=>{
+
+      var container = {}
+      fetch('/done',{
+          method : "GET",
+          headers:{
+            "Content-Type": "application/json"
+          },
+        
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            var type = data.role;
+            window.location.href= `/${type}`;
+                
+        });;
+      });
+
+    document.getElementById("ID_Check").addEventListener("click",()=>{
+        container = {}
+        container.ID = document.getElementById("ID").value;
+        if(container.ID  == ""){
+            window.alert("아이디를 입력해 주세요");
+            
+            return;
+        }
+        fetch('/ID_Check',{
+          method : "POST",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            var duplicate = data.duplicate;
+            var message = data.message;
+            if(duplicate){
+                window.alert(message);
+                return;
+            }else{
+                window.alert(message);
+                flag = true;
+                return;
+            }
+                
+        });
+
+    });
+
+    document.getElementById("C_ID").addEventListener("click", ()=>{
+      var container ={};
+      container.C_ID=document.getElementById("ID").value;
+      
+      if(container.C_ID  == ""){
+            window.alert("아이디를 입력해 주세요");
+            return;
+        }
+           
+      fetch('/C_ID',{
+          method : "PUT",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+         
+            if(success){
+                window.alert(message);
+                location.reload();
+                return;
+            }else{
+                window.alert(message);
+                return;
+                
+            }
+        })
+      })
+      
+    document.getElementById("C_PASSWORD").addEventListener("click", ()=>{
+      var container ={};
+      
+      container.C_PASSWORD = document.getElementById("PASSWORD").value;
+      container.C_PWVALID = document.getElementById("PWVALID").value;
+      
+      
+      if(container.C_PASSWORD  == ""){
+            window.alert("패스워드를 입력해 주세요");
+            return;
+        }else if (container.C_PWVALD == ""){
+          window.alert("패스워드확인을 입력해 주세요");
+          return;
+        }
+  
+      if(container.C_PASSWORD != container.C_PWVALID){
+        window.alert("패스워드가 일치하지 않습니다.")
+        return;
+      }
+        
+      fetch('/C_PASSWORD',{
+          method : "PUT",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+         
+            if(success){
+                window.alert(message);
+                location.reload();
+                return;
+            }else{
+                window.alert(message);
+                return;
+                
+            }
+        });
+      
+    })
+
+    document.getElementById("C_NAME").addEventListener("click", ()=>{
+      var container ={};
+      
+      container.C_NAME = document.getElementById("NAME").value;
+            
+      if(container.C_NAME  == ""){
+            window.alert("이름을 입력해 주세요");
+            return;
+      }
+       
+        
+      fetch('/C_NAME',{
+          method : "PUT",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+         
+            if(success){
+                window.alert(message);
+                location.reload();
+                return;
+            }else{
+                window.alert(message);
+                return;
+                
+            }
+        });
+      
+    });
+    
+    document.getElementById("C_GENDER").addEventListener("click", ()=>{
+      var container ={};
+      var temp = document.getElementsByName("gender");
+    
+        if(temp[0].checked){
+            container.C_GENDER = temp[0].value; 
+        }else if(temp[1].checked){
+            container.C_GENDER = temp[1].value;
+        }
+      if(container.C_GENDER  == undefined){
+            window.alert("성별을 입력해 주세요");
+            return;
+      }
+
+       
+        
+      fetch('/C_GENDER',{
+          method : "PUT",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+         
+            if(success){
+                window.alert(message);
+                location.reload();
+                return;
+            }else{
+                window.alert(message);
+                return;
+                
+            }
+        });
+      
+    });
+    
+    document.getElementById("C_ADDRESS").addEventListener("click", ()=>{
+      var container ={};
+      container.C_ADDRESS = document.getElementById("ADDRESS").value;
+    
+       
+      if(container.C_ADDRESS  == undefined){
+            window.alert("주소를 입력해 주세요");
+            return;
+      }
+ 
+       
+        
+      fetch('/C_ADDRESS',{
+          method : "PUT",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+         
+            if(success){
+                window.alert(message);
+                location.reload();
+                return;
+            }else{
+                window.alert(message);
+                return;
+                
+            }
+        });
+      
+    });
+
+    document.getElementById("C_PHONENUMBER").addEventListener("click", ()=>{
+      var container ={};
+      container.C_PHONENUMBER = document.getElementById("PHONENUMBER").value;
+      
+      
+
+      if(container.C_PHONENUMBER  == undefined){
+            window.alert("번호를 입력해 주세요");
+            return;
+      }
+      
+      if(isNaN(parseInt(container.C_PHONENUMBER, 10))){
+        window.alert("숫자만 입력해 주세요");
+        return;
+      }
+       
+        
+      fetch('/C_PHONENUMBER',{
+          method : "PUT",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+         
+            if(success){
+                window.alert(message);
+                location.reload();
+                return;
+            }else{
+                window.alert(message);
+                return;
+                
+            }
+        });
+      
+    });
+  
+    document.getElementById("C_DOB").addEventListener("click", ()=>{
+      var container ={};
+      container.C_DOB = document.getElementById("BIRTHDATE").value;
+             
+      if(container.C_DOB  == undefined){
+            window.alert("생일을 입력해 주세요");
+            return;
+      }
+ 
+       
+        
+      fetch('/C_DOB',{
+          method : "PUT",
+          headers:{
+            "Content-Type": "application/json"
+          },
+          body : JSON.stringify(container)
+        }).then((data)=>{
+            return data.json();
+        }).then((data)=>{
+            
+            var success = data.success;
+            var message = data.message;
+         
+            if(success){
+                window.alert(message);
+                location.reload();
+                return;
+            }else{
+                window.alert(message);
+                return;
+                
+            }
+        });
+      
+    });
+  </script>
+</html>
